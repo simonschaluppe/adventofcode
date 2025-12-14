@@ -17,7 +17,7 @@ EMOJI_MAPPING = {
     "A": "🦅",
     "a": "🐵",
     "B": "🛁",
-    "C": "💿",
+    "C": "⛺",
     "D": "🦡",
     "d": "🚺",
     "E": "📫",
@@ -28,9 +28,9 @@ EMOJI_MAPPING = {
     "g": "🏒",
     "H": "🐹",
     "h": "⚓",
-    "I": "🍨",
-    "i": "🧊",
-    "J": "🗾",
+    "I": "🆔",
+    "i": "👨🏽‍💻",
+    "J": "👹",
     "j": "🥋",
     "K": "☕",
     "k": "🛶",
@@ -40,7 +40,7 @@ EMOJI_MAPPING = {
     "m": "🧲",
     "N": "📝",
     "n": "💉",
-    "O": "⭕",
+    "O": "💝",
     "o": "🆗",
     "P": "🅿",
     "p": "📦",
@@ -50,7 +50,7 @@ EMOJI_MAPPING = {
     "r": "📻",
     "S": "🪐",
     "s": "🐑",
-    "T": "🎹",
+    "T": "👕",
     "t": "🌮",
     "U": "🆙",
     "u": "🚇",
@@ -59,25 +59,28 @@ EMOJI_MAPPING = {
     "W": "♎",
     "w": "🚾",
     "X": "❎",
-    "x": "💥",
+    "x": "❌",
     "Y": "🤸🏽‍♂️",
     "y": "🥮",
     "Z": "💤",
-    "z": "🏁",
+    "z": "🧙🏽‍♂️",
     "*": "⭐",
     "?": "🔎",
-    '/': "🥒", 
+    '/': "🥒",
     '@': "🐒",
     # **EMOJI_LETTERS
 }
 
-def show(nested_list, space=" ", use_emojis=False):
+
+def show(nested_list, space=" ", use_emojis=False, legend:dict=None):
     """Displays the map in ASCII or emojis based on the mapping."""
+    if legend:
+        nested_list = replace(nested_list, legend)
     for item in nested_list:
         if use_emojis:
-            print("".join(EMOJI_MAPPING.get(char, "⬜") for char in item))
+            print("".join(EMOJI_MAPPING.get(str(char), "⬜") for char in item))
         else:
-            print(space.join(item))
+            print(space.join(map(str,item)))
 
 def mark_on_map(position_tuples, nested_list_map, mark="X", marks=None):
     """Marks specified positions on the map with the given character."""
@@ -104,6 +107,28 @@ def replace_on_map(old, new, nested_list_map):
     """Replaces all occurrences of a character with another on the map."""
     return mark_on_map(find_on_map(old, nested_list_map), nested_list_map, new)
 
+def replace(maplist, legend_dict:dict, inplace=True):
+    if not inplace: maplist = [l.copy() for l in maplist]
+    for k,v in legend_dict.items():
+        maplist = replace_on_map(k,v, maplist)
+    return maplist
+
+def input_as_nested_list(filename):
+    with open(filename) as f:
+        nl = [[x for x in line.strip()] for line in f.readlines()]
+    return nl
+
+DIRS_HORIVERT = [(-1,0), (0,1), (1,0),(0,-1)]
+
+def get_neighbors(pos, lookup:list[list], directions=DIRS_HORIVERT):
+    neighbors = []
+    px,py = pos
+    lx, ly = len(lookup), len(lookup[0])
+    for dx,dy in directions:
+        nx, ny = px+dx, py+dy
+        if any([nx<0, ny<0, nx>=lx, ny>=ly]):continue
+        neighbors.append((nx,ny))
+    return neighbors
 
 if __name__ == "__main__":
 # Example Usage
